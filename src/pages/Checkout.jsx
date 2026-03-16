@@ -98,7 +98,7 @@ export default function Checkout() {
                 <h2 style={{ fontSize: "32px", color: "var(--dark-green)", fontStyle: "italic", margin: 0, fontWeight: '900' }}>Review Your Order</h2>
             </div>
 
-            {cart.length === 0 ? (
+            {(cart.length === 0 && !isProcessing && !orderCompleted) ? (
                 <div style={{ textAlign: "center", padding: "80px 0", background: "#FFF", borderRadius: "24px", border: "1px solid rgba(22,51,33,0.08)" }}>
                     <p style={{ fontSize: "18px", color: "#6A7A6E", marginBottom: "24px" }}>Your cart is empty.</p>
                     <Link to="/" style={{
