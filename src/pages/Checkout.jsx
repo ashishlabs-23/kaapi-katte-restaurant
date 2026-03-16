@@ -227,11 +227,12 @@ export default function Checkout() {
 
                 @media (max-width: 900px) {
                     .checkout-container-elite { 
-                        grid-template-columns: 1fr;
-                        gap: 24px;
+                        display: flex !important;
+                        flex-direction: column !important;
+                        gap: 24px !important;
                     }
                     .checkout-items-elite, .checkout-section-white, .checkout-summary-dark {
-                        padding: 24px;
+                        padding: 20px !important;
                     }
                     .cart-row-elite {
                         flex-direction: column;
