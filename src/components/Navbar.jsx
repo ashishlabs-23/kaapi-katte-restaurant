@@ -162,11 +162,11 @@ export default function Navbar() {
                             border: 'none',
                             color: 'var(--emerald)',
                             cursor: 'pointer',
-                            padding: '8px'
+                            padding: '12px'
                         }}
                         className="mobile-trigger"
                     >
-                        {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                        {mobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
                     </button>
                 </div>
             </div>
@@ -175,16 +175,17 @@ export default function Navbar() {
             <div style={{
                 position: 'fixed',
                 top: 0, right: 0, bottom: 0,
-                width: '300px',
+                width: '100%',
+                maxWidth: '340px',
                 background: 'var(--ivory)',
                 zIndex: 2000,
                 transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
                 transition: 'transform 0.5s var(--ease-heavy)',
-                boxShadow: '-10px 0 50px rgba(0,0,0,0.1)',
+                boxShadow: '-20px 0 60px rgba(0,0,0,0.15)',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '100px 40px',
-                gap: '24px'
+                padding: '120px 48px',
+                gap: '32px'
             }}>
                 {[...leftLinks, ...rightLinks].map(link => (
                     <Link 
@@ -194,9 +195,9 @@ export default function Navbar() {
                         style={{
                             textDecoration: 'none',
                             color: location.pathname === link.path ? 'var(--saffron)' : 'var(--emerald)',
-                            fontSize: '18px',
+                            fontSize: '24px',
                             fontWeight: '900',
-                            letterSpacing: '2px',
+                            letterSpacing: '3px',
                             textTransform: 'uppercase',
                             fontStyle: 'italic'
                         }}
@@ -213,8 +214,8 @@ export default function Navbar() {
                     style={{
                         position: 'fixed',
                         inset: 0,
-                        background: 'rgba(10, 34, 22, 0.4)',
-                        backdropFilter: 'blur(4px)',
+                        background: 'rgba(10, 34, 22, 0.6)',
+                        backdropFilter: 'blur(8px)',
                         zIndex: 1999
                     }} 
                 />
@@ -249,12 +250,15 @@ export default function Navbar() {
                 @media (max-width: 1024px) {
                     .nav-link-elite, .left-links-desktop, .desktop-links { display: none !important; }
                     .mobile-trigger { display: block !important; }
-                    nav { padding: 0 24px; height: 72px !important; }
-                    .logo-sanctum { width: 50px !important; height: 50px !important; }
-                    .navbar-grid { grid-template-columns: 1fr auto 1fr !important; }
+                    nav { padding: 0 20px !important; height: 88px !important; background: rgba(250, 249, 246, 0.95) !important; }
+                    .logo-sanctum { width: 64px !important; height: 64px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
+                    .navbar-grid { grid-template-columns: auto 1fr auto !important; gap: 12px; }
+                    .cart-trigger-elite { padding: 10px 16px !important; gap: 8px !important; }
+                    .cart-trigger-elite span { display: none; }
+                    .cart-trigger-elite::after { content: 'ITEMS'; font-size: 9px; display: none; }
+                    /* Make cart count always visible but compact */
+                    .cart-trigger-elite span { display: block !important; font-size: 10px !important; }
                 }
-                /* Utility classes for hidden elements */
-                .left-links-desktop { display: flex; gap: 48px; justifyContent: flex-start; }
             `}</style>
         </nav>
     );

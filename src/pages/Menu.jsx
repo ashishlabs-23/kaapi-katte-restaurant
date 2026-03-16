@@ -101,11 +101,11 @@ export default function Menu() {
             <div style={{ 
                 maxWidth: '1400px', 
                 margin: '80px auto', 
-                padding: '0 40px',
+                padding: '0 20px',
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-                gap: '60px'
-            }}>
+                gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+                gap: '32px'
+            }} className="menu-grid-elite">
                 {menuData[activeCategory].map((item, idx) => (
                     <div 
                         key={item.name} 
@@ -124,7 +124,8 @@ export default function Menu() {
                     >
                         <div style={{ 
                             aspectRatio: '1/1.2', background: '#e5e5e5', borderRadius: '2px', overflow: 'hidden',
-                            boxShadow: '0 40px 100px rgba(0,0,0,0.08)' 
+                            boxShadow: '0 40px 100px rgba(0,0,0,0.08)',
+                            position: 'relative'
                         }}>
                              <img 
                                 src={item.image} 
@@ -148,40 +149,41 @@ export default function Menu() {
                                 fontSize: '16px',
                                 fontWeight: '900',
                                 color: 'var(--ivory)',
-                                letterSpacing: '1px'
+                                letterSpacing: '1px',
+                                zIndex: 2
                             }}>
                                 ₹{item.price}
                             </div>
                         </div>
 
-                        <div style={{ padding: '40px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-                            <h3 style={{ fontSize: '28px', color: 'var(--emerald)', margin: '0 0 16px', fontStyle: 'italic' }}>{item.name}</h3>
-                            <p style={{ color: '#5A6A5E', fontSize: '16px', lineHeight: 1.8, margin: '0 0 32px', flex: 1, fontWeight: '400' }}>
+                        <div className="card-body-elite" style={{ padding: '32px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                            <h3 style={{ fontSize: '24px', color: 'var(--emerald)', margin: '0 0 12px', fontStyle: 'italic' }}>{item.name}</h3>
+                            <p style={{ color: '#5A6A5E', fontSize: '15px', lineHeight: 1.7, margin: '0 0 24px', flex: 1, fontWeight: '400' }}>
                                 {item.desc}
                             </p>
                             
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} className="card-actions-elite">
                                 <button 
                                     onClick={() => addToCart(item)}
                                     style={{
                                         background: 'transparent',
                                         color: 'var(--emerald)',
                                         border: '1px solid var(--emerald)',
-                                        padding: '16px 32px',
+                                        padding: '14px 28px',
                                         borderRadius: '1px',
-                                        fontSize: '12px',
+                                        fontSize: '11px',
                                         fontWeight: '800',
-                                        letterSpacing: '2px',
+                                        letterSpacing: '1.5px',
                                         textTransform: 'uppercase',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '12px',
+                                        gap: '10px',
                                         transition: 'all 0.4s var(--ease-heavy)'
                                     }}
                                     className="add-btn-elite"
                                 >
-                                    <Plus size={16} strokeWidth={3} />
+                                    <Plus size={14} strokeWidth={3} />
                                     Add to Cart
                                 </button>
                                 
@@ -189,7 +191,7 @@ export default function Menu() {
                                     <div style={{ 
                                         display: 'flex', 
                                         alignItems: 'center', 
-                                        gap: '10px', 
+                                        gap: '8px', 
                                         color: 'var(--saffron)', 
                                         fontWeight: '900',
                                         animation: 'scaleIn 0.4s var(--ease-heavy)'
@@ -227,6 +229,17 @@ export default function Menu() {
                 .category-btn-elite:not(.active):hover {
                     color: var(--saffron) !important;
                     transform: translateY(-2px);
+                }
+
+                @media (max-width: 768px) {
+                    .menu-grid-elite { 
+                        grid-template-columns: 1fr !important; 
+                        gap: 24px !important;
+                        margin: 40px auto !important;
+                    }
+                    .card-body-elite { padding: 24px !important; }
+                    .card-actions-elite { flex-direction: column; align-items: stretch !important; gap: 16px; }
+                    .add-btn-elite { justify-content: center !important; }
                 }
 
                 @keyframes fadeInUp {

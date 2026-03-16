@@ -110,14 +110,14 @@ export default function Checkout() {
                     </Link>
                 </div>
             ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "40px", alignItems: "start" }}>
+                <div className="checkout-grid-elite" style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "40px", alignItems: "start" }}>
 
                     {/* Left Column: Items */}
-                    <div style={{ background: "#FFF", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22,51,33,0.1)", boxShadow: "0 10px 30px rgba(0,0,0,0.02)" }}>
+                    <div className="checkout-section-elite" style={{ background: "#FFF", padding: "32px", borderRadius: "24px", border: "1px solid rgba(22,51,33,0.1)", boxShadow: "0 10px 30px rgba(0,0,0,0.02)" }}>
                         <h3 style={{ fontSize: "20px", color: "#163321", margin: "0 0 24px", paddingBottom: "16px", borderBottom: "1px solid rgba(22,51,33,0.1)" }}>Your Cart</h3>
 
                         {cart.map(item => (
-                            <div key={item.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", borderBottom: "1px solid rgba(22,51,33,0.05)" }}>
+                            <div key={item.name} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", borderBottom: "1px solid rgba(22,51,33,0.05)" }} className="cart-row-elite">
                                 <div style={{ flex: 1 }}>
                                     <div style={{ fontSize: "16px", fontWeight: "bold", color: "#163321" }}>{item.name}</div>
                                     <div style={{ fontSize: "14px", color: "#DCA82D", fontWeight: "bold" }}>₹{item.price}</div>
@@ -139,7 +139,7 @@ export default function Checkout() {
 
                     {/* Right Column: Details & Order Button */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <div style={{ background: '#FFF', borderRadius: '24px', padding: '32px', border: '1px solid rgba(22,51,33,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+                        <div className="checkout-section-elite" style={{ background: '#FFF', borderRadius: '24px', padding: '32px', border: '1px solid rgba(22,51,33,0.08)', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
                             <h3 style={{ fontSize: '20px', color: '#163321', marginBottom: '24px', fontStyle: 'italic' }}>Customer Details</h3>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                                 <div>
@@ -165,7 +165,7 @@ export default function Checkout() {
                             </div>
                         </div>
 
-                        <div style={{ background: '#163321', borderRadius: '24px', padding: '32px', color: '#FFF', boxShadow: '0 20px 40px rgba(22,51,33,0.15)' }}>
+                        <div className="checkout-section-elite" style={{ background: '#163321', borderRadius: '24px', padding: '32px', color: '#FFF', boxShadow: '0 20px 40px rgba(22,51,33,0.15)' }}>
                             <h3 style={{ fontSize: '18px', color: '#FFF', marginBottom: '24px', fontStyle: 'italic', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '16px' }}>Order Summary</h3>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', color: 'rgba(255,255,255,0.7)' }}>
@@ -194,6 +194,23 @@ export default function Checkout() {
                     </div>
                 </div>
             )}
+            
+            <style>{`
+                @media (max-width: 900px) {
+                    .checkout-grid-elite { 
+                        grid-template-columns: 1fr !important;
+                        gap: 24px !important;
+                    }
+                    .checkout-section-elite {
+                        padding: 24px !important;
+                    }
+                    .cart-row-elite {
+                        flex-direction: column;
+                        align-items: flex-start !important;
+                        gap: 16px;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

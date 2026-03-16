@@ -67,27 +67,26 @@ export default function Home() {
                         EST. 2024 • BENGALURU
                     </div>
                     <h1 style={{
-                        fontSize: "clamp(80px, 15vw, 180px)", color: "#FFF", margin: 0, lineHeight: 0.85,
+                        fontSize: "clamp(56px, 12vw, 180px)", color: "#FFF", margin: 0, lineHeight: 0.85,
                         textTransform: "uppercase", letterSpacing: "-0.04em", fontWeight: "900",
                         textShadow: "0 20px 80px rgba(0,0,0,0.4)",
                         fontFamily: "'Playfair Display', serif"
                     }}>Kaapi<br /><span style={{ color: 'var(--saffron)' }}>Katte</span></h1>
                     
                     <p style={{
-                        fontSize: "clamp(16px, 1.8vw, 22px)", color: "#F5F2EB", maxWidth: "700px",
-                        margin: "40px auto 60px", lineHeight: 1.8, fontWeight: "400", opacity: 0.9,
+                        fontSize: "clamp(15px, 1.6vw, 22px)", color: "#F5F2EB", maxWidth: "700px",
+                        margin: "32px auto 48px", lineHeight: 1.6, fontWeight: "400", opacity: 0.9,
                         letterSpacing: "0.02em"
                     }}>
                         A curated journey through the ancestral kitchens of South India. 
-                        Where every pour of kaapi is a ritual of heritage.
                     </p>
 
                     <button 
                         onClick={() => navigate('/menu')} 
                         style={{
-                            padding: "24px 60px", background: "var(--saffron)", color: "var(--emerald)",
-                            border: "none", borderRadius: "1px", fontSize: "12px", fontWeight: "900",
-                            letterSpacing: "4px", textTransform: "uppercase", cursor: "pointer",
+                            padding: "20px 48px", background: "var(--saffron)", color: "var(--emerald)",
+                            border: "none", borderRadius: "1px", fontSize: "11px", fontWeight: "900",
+                            letterSpacing: "3px", textTransform: "uppercase", cursor: "pointer",
                             transition: "all 0.8s var(--ease-heavy)",
                             boxShadow: "0 15px 45px rgba(226, 167, 63, 0.3)"
                         }} 
