@@ -178,16 +178,16 @@ export default function Dashboard() {
                         </div>
 
                         {/* Hidden input for better mobile experience while maintaining elite custom UI */}
-                        <input
-                            type="password"
-                            value={pin}
-                            onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                            autoFocus
-                            style={{
-                                position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                                opacity: 0, cursor: 'default'
-                            }}
-                        />
+                            <input
+                                type="password"
+                                value={pin}
+                                onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                autoFocus
+                                style={{
+                                    position: 'absolute', top: 0, left: 0, width: '100%', height: '80px', /* Reduced height to only cover dots */
+                                    opacity: 0, cursor: 'default'
+                                }}
+                            />
 
                         <button type="submit" style={{
                             width: '100%', padding: '24px', background: 'transparent',
@@ -223,17 +223,17 @@ export default function Dashboard() {
             <div style={{ maxWidth: "1250px", margin: "0 auto" }}>
 
                 {/* Epic Header with Connectivity Intelligence */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "48px", animation: "fadeIn 1s ease-out" }}>
+                <div className="dashboard-header-elite" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "48px", animation: "fadeIn 1s ease-out", gap: '24px' }}>
                     <div>
-                        <h1 style={{ fontSize: "42px", color: "#163321", fontStyle: "italic", margin: 0, fontWeight: "900", letterSpacing: "-1px" }}>Kaapi Intelligence</h1>
+                        <h1 style={{ fontSize: "42px", color: "#163321", fontStyle: "italic", margin: 0, fontWeight: "900", letterSpacing: "-1px" }} className="dashboard-title">Kaapi Intelligence</h1>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "12px" }}>
                             <div className="pulse-live" style={{ width: "10px", height: "10px", borderRadius: "50%", background: error ? "#F44336" : (loading ? "#E2A73F" : "#4CAF50") }} />
                             <span style={{ fontSize: "11px", fontWeight: "900", color: "#6A7A6E", textTransform: "uppercase", letterSpacing: "2.5px" }}>
-                                {error ? "Neural Link Interrupted" : (loading ? "Synchronizing with Google Sheets..." : `System Optimized - Last Sync: ${lastSync || 'Now'}`)}
+                                {error ? "Neural Link Interrupted" : (loading ? "Synchronizing..." : `System Optimized - ${lastSync || 'Now'}`)}
                             </span>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'flex-end' }} className="header-actions">
                         {error && (
                             <div style={{ 
                                 background: "rgba(244,67,54,0.1)", padding: "12px 24px", borderRadius: "12px", 
@@ -305,7 +305,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Detailed Analytics */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "32px", animation: "slideUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards", opacity: 0 }}>
+                <div className="analytics-grid-elite" style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "32px", animation: "slideUp 1s cubic-bezier(0.4, 0, 0.2, 1) 0.5s forwards", opacity: 0 }}>
 
                     {/* Top Selling Items */}
                     <div style={{ background: "#FFF", padding: "40px", borderRadius: "40px", boxShadow: "0 30px 60px rgba(0,0,0,0.04)", border: "1px solid rgba(0,0,0,0.02)" }}>
@@ -381,6 +381,20 @@ export default function Dashboard() {
                 }
                 .spin { animation: spin 0.8s linear infinite; }
                 .pulse-live { animation: pulseLive 2.5s infinite; }
+
+                /* Responsive Overrides */
+                @media (max-width: 1024px) {
+                    .dashboard-header-elite { flex-direction: column; align-items: flex-start !important; }
+                    .dashboard-title { fontSize: 32px !important; }
+                    .header-actions { justify-content: flex-start !important; width: 100%; }
+                    .analytics-grid-elite { grid-template-columns: 1fr !important; }
+                    .login-modal-elite { padding: 40px 24px !important; }
+                }
+                @media (max-width: 640px) {
+                    .dashboard-title { fontSize: 28px !important; }
+                    .header-actions button { width: 100%; justify-content: center; }
+                    td, th { padding: 12px 8px !important; font-size: 12px !important; }
+                }
             `}</style>
         </div>
     );

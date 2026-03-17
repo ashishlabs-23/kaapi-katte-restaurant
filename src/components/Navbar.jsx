@@ -176,35 +176,60 @@ export default function Navbar() {
                 position: 'fixed',
                 top: 0, right: 0, bottom: 0,
                 width: '100%',
-                maxWidth: '340px',
+                maxWidth: '400px', /* Slightly wider for better text flow */
                 background: 'var(--ivory)',
                 zIndex: 2000,
                 transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
-                transition: 'transform 0.5s var(--ease-heavy)',
-                boxShadow: '-20px 0 60px rgba(0,0,0,0.15)',
+                transition: 'transform 0.6s var(--ease-heavy)',
+                boxShadow: '-30px 0 80px rgba(10, 34, 22, 0.15)',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: '120px 48px',
-                gap: '32px'
+                padding: '0',
+                overflow: 'hidden'
             }}>
-                {[...leftLinks, ...rightLinks].map(link => (
-                    <Link 
-                        key={link.name} 
-                        to={link.path} 
-                        onClick={() => setMobileMenuOpen(false)}
-                        style={{
-                            textDecoration: 'none',
-                            color: location.pathname === link.path ? 'var(--saffron)' : 'var(--emerald)',
-                            fontSize: '24px',
-                            fontWeight: '900',
-                            letterSpacing: '3px',
-                            textTransform: 'uppercase',
-                            fontStyle: 'italic'
-                        }}
-                    >
-                        {link.name}
-                    </Link>
-                ))}
+                {/* Drawer Decoration */}
+                <div style={{ padding: '60px 48px 40px', borderBottom: '1px solid rgba(10, 34, 22, 0.05)' }}>
+                    <div style={{ 
+                        width: '64px', height: '64px', background: '#FFF', 
+                        borderRadius: '50%', padding: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
+                        marginBottom: '24px'
+                    }}>
+                        <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                    </div>
+                    <h2 style={{ fontSize: '24px', color: 'var(--emerald)', margin: 0, fontStyle: 'italic' }}>Kaapi Katte</h2>
+                    <p style={{ fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--saffron)', fontWeight: '800', marginTop: '8px' }}>
+                        The Modern Temple
+                    </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', padding: '48px', gap: '32px' }}>
+                    {[...leftLinks, ...rightLinks].map(link => (
+                        <Link 
+                            key={link.name} 
+                            to={link.path} 
+                            onClick={() => setMobileMenuOpen(false)}
+                            style={{
+                                textDecoration: 'none',
+                                color: location.pathname === link.path ? 'var(--saffron)' : 'var(--emerald)',
+                                fontSize: '28px',
+                                fontWeight: '900',
+                                letterSpacing: '2px',
+                                textTransform: 'uppercase',
+                                fontStyle: 'italic',
+                                transition: 'all 0.3s ease'
+                            }}
+                            className="mobile-nav-link"
+                        >
+                            {link.name}
+                        </Link>
+                    ))}
+                </div>
+
+                <div style={{ marginTop: 'auto', padding: '48px', background: 'rgba(10, 34, 22, 0.02)' }}>
+                    <p style={{ fontSize: '11px', color: 'rgba(10, 34, 22, 0.4)', fontWeight: '700', letterSpacing: '1px' }}>
+                        © 2026 KAAPI KATTE RESTAURANT
+                    </p>
+                </div>
             </div>
 
             {/* Backdrop */}
