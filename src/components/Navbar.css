@@ -43,14 +43,14 @@
 
 .site-navbar__desktop--right {
     justify-content: flex-end;
-    gap: 24px;
+    gap: 28px;
 }
 
 .site-navbar__desktop-links {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 24px;
+    gap: 28px;
     min-width: 0;
 }
 
@@ -197,7 +197,7 @@
     line-height: 1;
 }
 
-.site-navbar__cart-link--mobile {
+.site-navbar__cart-link.site-navbar__cart-link--mobile {
     display: none;
 }
 
@@ -360,7 +360,7 @@
     }
 
     .site-navbar__menu-toggle,
-    .site-navbar__cart-link--mobile {
+    .site-navbar__cart-link.site-navbar__cart-link--mobile {
         display: inline-flex;
     }
 
