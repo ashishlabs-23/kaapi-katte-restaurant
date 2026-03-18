@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingCart from './components/FloatingCart';
 
 // We will build these pages next
 import Home from './pages/Home';
