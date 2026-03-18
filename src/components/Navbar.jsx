@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, ShoppingBag, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import './Navbar.css';
 
@@ -22,7 +22,6 @@ export default function Navbar() {
     const location = useLocation();
     const { cart, isChef } = useCart();
 
-    const itemsInCart = cart.reduce((sum, item) => sum + item.count, 0);
     const isScrolled = scrollY > 20;
     const rightLinks = isChef
         ? [
@@ -68,7 +67,6 @@ export default function Navbar() {
     }, [mobileMenuOpen]);
 
     const allLinks = [...leftLinks, ...rightLinks];
-    const cartAriaLabel = itemsInCart > 0 ? `Open cart with ${itemsInCart} item${itemsInCart === 1 ? '' : 's'}` : 'Open cart';
 
     const getLinkClassName = (path, isDrawerLink = false) => {
         const baseClass = isDrawerLink ? 'site-navbar__drawer-link' : 'site-navbar__link';
@@ -111,23 +109,7 @@ export default function Navbar() {
                             </Link>
                         ))}
                     </div>
-
-                    <Link to="/checkout" className="site-navbar__cart-link" aria-label={cartAriaLabel}>
-                        <ShoppingBag size={16} strokeWidth={2.2} />
-                        <span className="site-navbar__cart-text">Cart</span>
-                        {itemsInCart > 0 && <span className="site-navbar__cart-count">{itemsInCart}</span>}
-                    </Link>
                 </div>
-
-                <Link
-                    to="/checkout"
-                    className="site-navbar__cart-link site-navbar__cart-link--mobile"
-                    aria-label={cartAriaLabel}
-                >
-                    <ShoppingBag size={18} strokeWidth={2.2} />
-                    <span className="site-navbar__cart-text">Cart</span>
-                    {itemsInCart > 0 && <span className="site-navbar__cart-count">{itemsInCart}</span>}
-                </Link>
             </nav>
 
             <aside
@@ -171,17 +153,6 @@ export default function Navbar() {
                 </div>
 
                 <div className="site-navbar__drawer-footer">
-                    <Link
-                        to="/checkout"
-                        className="site-navbar__cart-link site-navbar__drawer-cart"
-                        onClick={() => setMobileMenuOpen(false)}
-                        aria-label={cartAriaLabel}
-                    >
-                        <ShoppingBag size={16} strokeWidth={2.2} />
-                        <span className="site-navbar__cart-text">View cart</span>
-                        {itemsInCart > 0 && <span className="site-navbar__cart-count">{itemsInCart}</span>}
-                    </Link>
-
                     <p className="site-navbar__drawer-copy">{drawerCopy}</p>
                 </div>
             </aside>

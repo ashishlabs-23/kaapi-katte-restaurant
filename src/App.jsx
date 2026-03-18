@@ -37,6 +37,7 @@ export default function App() {
             <CartProvider>
                 <div className="app-shell">
                     <Navbar />
+                    <FloatingCart />
 
                     <main className="app-main">
                         <AppRoutes />
