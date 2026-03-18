@@ -70,15 +70,18 @@ export default function Menu() {
                     display: 'flex',
                     gap: '4px',
                     border: '1px solid rgba(10, 34, 22, 0.05)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.05)'
-                }}>
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.05)',
+                    maxWidth: '95vw',
+                    overflowX: 'auto',
+                    whiteSpace: 'nowrap'
+                }} className="no-scrollbar">
                     {Object.keys(menuData).map(cat => (
                         <button 
                             key={cat} 
                             onClick={() => setActiveCategory(cat)}
                             style={{
                                 padding: '14px 32px',
-                                border: 'none',
+                                border: activeCategory === cat ? '1px solid var(--saffron)' : 'none',
                                 background: activeCategory === cat ? 'var(--emerald)' : 'transparent',
                                 color: activeCategory === cat ? 'var(--ivory)' : 'var(--emerald)',
                                 borderRadius: '100px',
@@ -87,9 +90,10 @@ export default function Menu() {
                                 letterSpacing: '2px',
                                 textTransform: 'uppercase',
                                 cursor: 'pointer',
-                                transition: 'all 0.6s var(--ease-heavy)'
+                                transition: 'all 0.6s var(--ease-heavy)',
+                                flexShrink: 0
                             }}
-                            className="category-btn-elite"
+                            className="category-btn-elite mobile-haptic"
                         >
                             {cat}
                         </button>
@@ -142,16 +146,21 @@ export default function Menu() {
                             />
                             <div style={{ 
                                 position: 'absolute', 
-                                bottom: '0', 
-                                left: '0', 
-                                background: 'var(--emerald)', 
-                                padding: '12px 24px', 
-                                fontSize: '16px',
+                                top: '20px', 
+                                right: '20px', 
+                                background: 'rgba(10, 34, 22, 0.8)', 
+                                backdropFilter: 'blur(12px)',
+                                WebkitBackdropFilter: 'blur(12px)',
+                                padding: '10px 20px', 
+                                fontSize: '15px',
                                 fontWeight: '900',
                                 color: 'var(--ivory)',
                                 letterSpacing: '1px',
-                                zIndex: 2
-                            }}>
+                                zIndex: 2,
+                                borderRadius: '40px',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+                            }} className="price-badge-elite">
                                 ₹{item.price}
                             </div>
                         </div>
@@ -181,7 +190,7 @@ export default function Menu() {
                                         gap: '10px',
                                         transition: 'all 0.4s var(--ease-heavy)'
                                     }}
-                                    className="add-btn-elite"
+                                    className="add-btn-elite mobile-haptic"
                                 >
                                     <Plus size={14} strokeWidth={3} />
                                     Add to Cart
@@ -234,12 +243,34 @@ export default function Menu() {
                 @media (max-width: 768px) {
                     .menu-grid-elite { 
                         grid-template-columns: 1fr !important; 
-                        gap: 24px !important;
-                        margin: 40px auto !important;
+                        gap: 32px !important;
+                        margin: 20px auto !important;
                     }
+                    .price-badge-elite {
+                        top: 15px !important;
+                        right: 15px !important;
+                        padding: 8px 16px !important;
+                        font-size: 14px !important;
+                    }
+                    .card-body-elite h3 { font-size: 20px !important; margin-bottom: 8px !important; }
+                    .card-body-elite p { font-size: 14px !important; line-height: 1.6 !important; }
                     .card-body-elite { padding: 24px !important; }
-                    .card-actions-elite { flex-direction: column; align-items: stretch !important; gap: 16px; }
-                    .add-btn-elite { justify-content: center !important; }
+                    .card-actions-elite { 
+                        flex-direction: row !important; 
+                        align-items: center !important; 
+                        justify-content: flex-start !important; 
+                        gap: 16px !important;
+                    }
+                    .add-btn-elite { 
+                        background: var(--emerald) !important; 
+                        color: var(--ivory) !important;
+                        padding: 12px 20px !important;
+                        font-size: 10px !important;
+                    }
+                    .category-btn-elite {
+                        padding: 10px 20px !important;
+                        font-size: 10px !important;
+                    }
                 }
 
                 @keyframes fadeInUp {

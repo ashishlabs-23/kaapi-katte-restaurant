@@ -1,0 +1,106 @@
+.site-footer {
+    border-top: 1px solid rgba(22, 51, 33, 0.12);
+    background: #163321;
+    color: #fdf8f2;
+    padding: clamp(48px, 7vw, 72px) 20px clamp(32px, 4vw, 40px);
+}
+
+.site-footer__inner {
+    width: min(680px, 100%);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.site-footer__brand-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.site-footer__brand,
+.site-footer__script,
+.site-footer__copy {
+    margin: 0;
+}
+
+.site-footer__brand {
+    color: var(--saffron);
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.9rem, 3vw, 2.4rem);
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.site-footer__script {
+    color: rgba(253, 248, 242, 0.78);
+    font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+    letter-spacing: 0.24em;
+    line-height: 1.5;
+}
+
+.site-footer__staff-toggle {
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(253, 248, 242, 0.24);
+    background: transparent;
+    color: rgba(253, 248, 242, 0.86);
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.site-footer__staff-toggle:hover,
+.site-footer__staff-toggle:focus-visible {
+    border-color: rgba(226, 167, 63, 0.72);
+    background: rgba(226, 167, 63, 0.08);
+    color: var(--saffron);
+    transform: translateY(-1px);
+}
+
+.site-footer__staff-toggle.is-active {
+    border-color: rgba(226, 167, 63, 0.8);
+    background: rgba(226, 167, 63, 0.12);
+    color: var(--saffron);
+}
+
+.site-footer__copy {
+    color: rgba(253, 248, 242, 0.64);
+    font-size: 0.78rem;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.site-footer button:focus-visible {
+    outline: 2px solid rgba(226, 167, 63, 0.72);
+    outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+    .site-footer {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+
+    .site-footer__inner {
+        gap: 18px;
+    }
+
+    .site-footer__script {
+        letter-spacing: 0.16em;
+    }
+
+    .site-footer__copy {
+        letter-spacing: 0.05em;
+    }
+}

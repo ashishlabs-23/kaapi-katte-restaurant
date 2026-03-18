@@ -35,17 +35,10 @@ export default function App() {
     return (
         <BrowserRouter>
             <CartProvider>
-                <div style={{
-                    fontFamily: "'Playfair Display', serif",
-                    background: "#FDF8F2",
-                    color: "#1A1A1A",
-                    minHeight: "100vh",
-                    display: "flex",
-                    flexDirection: "column"
-                }}>
+                <div className="app-shell">
                     <Navbar />
 
-                    <main style={{ flex: 1, marginTop: '72px' }}>
+                    <main className="app-main">
                         <AppRoutes />
                     </main>
 

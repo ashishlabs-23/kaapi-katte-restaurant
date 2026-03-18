@@ -3,10 +3,15 @@
 :root {
   /* Elite Palette */
   --emerald: #0A2216;      /* Deep Temple Green */
+  --dark-green: #0A2216;
   --saffron: #E2A73F;      /* Morning Kaapi Sun */
   --kaapi-brown: #4D2C19;  /* Roasted Bean */
   --ivory: #FAF9F6;        /* Smooth Morning Mist */
   --clay: #B87333;         /* Traditional Utensils */
+  --navbar-height: 104px;
+  --navbar-height-scrolled: 82px;
+  --navbar-height-mobile: 78px;
+  --navbar-offset: calc(var(--navbar-height) + 8px);
   
   /* Motion Tokens */
   --ease-heavy: cubic-bezier(0.19, 1, 0.22, 1);
@@ -27,6 +32,39 @@ body {
   color: var(--emerald);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+body.nav-open {
+  overflow: hidden;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #FDF8F2;
+  color: #1A1A1A;
+}
+
+.app-main {
+  flex: 1;
+  padding-top: var(--navbar-offset);
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --navbar-offset: calc(var(--navbar-height-mobile) + 8px);
+  }
 }
 
 ::selection {
@@ -61,4 +99,42 @@ h1, h2, h3, h4, .serif {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(10, 34, 22, 0.05);
-}
+}
+
+/* Mobile Polish Utilities */
+@media (max-width: 768px) {
+  .mobile-haptic:active {
+    transform: scale(0.96) !important;
+    transition: transform 0.1s var(--ease-heavy) !important;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;     /* Firefox */
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;             /* Chrome, Safari and Opera */
+  }
+
+  .input-elite {
+    border: 1px solid rgba(10, 34, 22, 0.08) !important;
+    transition: all 0.3s var(--ease-heavy) !important;
+  }
+  
+  .input-elite:focus {
+    border-color: var(--saffron) !important;
+    background: #FFF !important;
+    box-shadow: 0 0 0 4px rgba(226, 167, 63, 0.1) !important;
+    transform: translateY(-1px);
+  }
+
+  .card-depth {
+    transition: all 0.4s var(--ease-heavy);
+  }
+
+  .card-depth:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.06) !important;
+  }
+}

@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { apiService } from '../services/api';
-import { TrendingUp, ShoppingBag, IndianRupee, Lock, ChevronRight, RefreshCcw, ShoppingCart, PieChart } from 'lucide-react';
+import { apiService, buildLocalStatsFromOrders, hasMeaningfulStats } from '../services/api';
+import { useCart } from '../context/CartContext';
+import { TrendingUp, IndianRupee, Lock, RefreshCcw, ShoppingCart, PieChart } from 'lucide-react';
 
 const SECRET_PIN = '1928';
+const DOT_MARK = '\u2022';
+const RUPEE = '\u20B9';
+const ELLIPSIS = '\u2026';
 
 const MetricCard = ({ title, value, icon, delay }) => (
     <div style={{
@@ -32,6 +36,7 @@ const MetricCard = ({ title, value, icon, delay }) => (
 );
 
 export default function Dashboard() {
+    const { orders } = useCart();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [pin, setPin] = useState('');
     const [isHistoricalMode, setIsHistoricalMode] = useState(false);
@@ -39,6 +44,7 @@ export default function Dashboard() {
     const [stats, setStats] = useState({ dailyTotal: 0, orderCount: 0, bestSellers: [], recentOrders: [] });
     const [error, setError] = useState(null);
     const [lastSync, setLastSync] = useState(null);
+    const [dataSource, setDataSource] = useState('cloud');
 
     const fetchStats = async () => {
         if (isHistoricalMode) return;
@@ -46,18 +52,32 @@ export default function Dashboard() {
         setError(null);
         try {
             const data = await apiService.getDailyStats();
-            // Fallback for empty/malformed data
-            const safeData = {
-                dailyTotal: data?.dailyTotal || 0,
-                orderCount: data?.orderCount || 0,
-                bestSellers: data?.bestSellers || [],
-                recentOrders: data?.recentOrders || []
-            };
-            setStats(safeData);
-            setLastSync(new Date().toLocaleTimeString());
+            if (hasMeaningfulStats(data)) {
+                setStats(data);
+                setDataSource('cloud');
+                setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+            } else {
+                const localStats = buildLocalStatsFromOrders(orders);
+                setStats(localStats);
+                setDataSource('local');
+                setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+                setError(
+                    localStats.orderCount > 0
+                        ? "Cloud sync returned no sales data. Showing this device's local order log."
+                        : 'Cloud sync returned no sales data yet.'
+                );
+            }
         } catch (err) {
             console.error("Dashboard fetch error:", err);
-            setError("Connectivity bottleneck detected. Please ensure your Google Apps Script is deployed as 'Web App' with access set to 'Anyone'.");
+            const localStats = buildLocalStatsFromOrders(orders);
+            setStats(localStats);
+            setDataSource('local');
+            setLastSync(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+            setError(
+                localStats.orderCount > 0
+                    ? "Cloud sync is unavailable. Showing this device's local order log."
+                    : 'Cloud sync is unavailable and no local order log is stored on this device.'
+            );
         } finally {
             setLoading(false);
         }
@@ -82,6 +102,8 @@ export default function Dashboard() {
         if (!isHistoricalMode) {
             setStats(yesterdayData);
             setLastSync("Historical Analytics (Yesterday)");
+            setDataSource('historical');
+            setError(null);
         } else {
             fetchStats();
         }
@@ -89,12 +111,20 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
-        if (isAuthorized) fetchStats();
+        if (isAuthorized && !isHistoricalMode) fetchStats();
         const interval = setInterval(() => {
-            if (isAuthorized) fetchStats();
+            if (isAuthorized && !isHistoricalMode) fetchStats();
         }, 60000);
         return () => clearInterval(interval);
-    }, [isAuthorized]);
+    }, [isAuthorized, isHistoricalMode, orders]);
+
+    useEffect(() => {
+        if (!isAuthorized || isHistoricalMode || dataSource !== 'local') {
+            return;
+        }
+
+        setStats(buildLocalStatsFromOrders(orders));
+    }, [orders, isAuthorized, isHistoricalMode, dataSource]);
 
     const handlePinSubmit = (e) => {
         e.preventDefault();
@@ -172,7 +202,7 @@ export default function Dashboard() {
                                     transition: 'all 0.4s var(--ease-heavy)',
                                     transform: pin.length > i ? 'translateY(-4px)' : 'none'
                                 }}>
-                                    {pin.length > i ? '•' : ''}
+                                    {pin.length > i ? DOT_MARK : ''}
                                 </div>
                             ))}
                         </div>
@@ -217,6 +247,21 @@ export default function Dashboard() {
     }
 
     const aov = stats.orderCount > 0 ? (stats.dailyTotal / stats.orderCount).toFixed(0) : 0;
+    const syncIndicatorColor = error ? '#E2A73F' : (loading ? '#E2A73F' : dataSource === 'cloud' ? '#4CAF50' : '#163321');
+    const syncIndicatorLabel = error
+        ? (dataSource === 'local' ? 'Local fallback active' : 'Neural Link Interrupted')
+        : (loading
+            ? 'Synchronizing...'
+            : (dataSource === 'historical'
+                ? lastSync || 'Historical Analytics'
+                : (dataSource === 'cloud'
+                    ? `Cloud Synced - ${lastSync || 'Now'}`
+                    : `Local Ledger - ${lastSync || 'Ready'}`)));
+    const dataSourceCopy = dataSource === 'cloud'
+        ? 'Cloud-backed sales intelligence'
+        : dataSource === 'historical'
+            ? 'Historical snapshot loaded'
+            : 'Running from local device order history';
 
     return (
         <div style={{ minHeight: "100vh", background: "#F5F2EB", padding: "60px 20px" }}>
@@ -227,9 +272,9 @@ export default function Dashboard() {
                     <div>
                         <h1 style={{ fontSize: "42px", color: "#163321", fontStyle: "italic", margin: 0, fontWeight: "900", letterSpacing: "-1px" }} className="dashboard-title">Kaapi Intelligence</h1>
                         <div style={{ display: "flex", alignItems: "center", gap: "10px", marginTop: "12px" }}>
-                            <div className="pulse-live" style={{ width: "10px", height: "10px", borderRadius: "50%", background: error ? "#F44336" : (loading ? "#E2A73F" : "#4CAF50") }} />
+                            <div className="pulse-live" style={{ width: "10px", height: "10px", borderRadius: "50%", background: syncIndicatorColor }} />
                             <span style={{ fontSize: "11px", fontWeight: "900", color: "#6A7A6E", textTransform: "uppercase", letterSpacing: "2.5px" }}>
-                                {error ? "Neural Link Interrupted" : (loading ? "Synchronizing..." : `System Optimized - ${lastSync || 'Now'}`)}
+                                {syncIndicatorLabel}
                             </span>
                         </div>
                     </div>
@@ -239,7 +284,7 @@ export default function Dashboard() {
                                 background: "rgba(244,67,54,0.1)", padding: "12px 24px", borderRadius: "12px", 
                                 border: "1px solid rgba(244,67,54,0.2)", color: "#D32F2F", fontSize: "11px", fontWeight: "800"
                             }}>
-                                ⚠️ {error}
+                                Warning: {error}
                             </div>
                         )}
                         <div style={{ 
@@ -247,7 +292,7 @@ export default function Dashboard() {
                             display: "flex", alignItems: "center", gap: "12px", fontSize: "12px", fontWeight: "700" 
                         }}>
                             <TrendingUp size={16} color="var(--saffron)" />
-                            <span style={{ color: "#163321" }}>Revenue +12.5% vs Prev. Day</span>
+                            <span style={{ color: "#163321" }}>{dataSourceCopy}</span>
                         </div>
                         <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                             <button 
@@ -268,7 +313,7 @@ export default function Dashboard() {
                                     boxShadow: isHistoricalMode ? "0 4px 15px rgba(220, 168, 45, 0.3)" : "none"
                                 }}
                             >
-                                {isHistoricalMode ? "🔴 BACK TO LIVE" : "✨ YESTERDAY'S PERFORMANCE"}
+                                {isHistoricalMode ? "BACK TO LIVE" : "YESTERDAY'S PERFORMANCE"}
                             </button>
 
                             <button 
@@ -282,11 +327,11 @@ export default function Dashboard() {
                                     borderRadius: "12px",
                                     fontSize: "11px",
                                     fontWeight: "800",
-                                    cursor: (loading || isDemoMode) ? "not-allowed" : "pointer",
+                                    cursor: loading ? "not-allowed" : "pointer",
                                     display: "flex",
                                     alignItems: "center",
                                     gap: "8px",
-                                    opacity: (loading || isDemoMode) ? 0.7 : 1
+                                    opacity: loading ? 0.7 : 1
                                 }}
                             >
                                 <RefreshCcw size={14} className={loading ? "spin" : ""} />
@@ -298,10 +343,10 @@ export default function Dashboard() {
 
                 {/* Primary Metrics */}
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "32px", marginBottom: "48px" }}>
-                    <MetricCard title="Gross Revenue" value={`₹${stats.dailyTotal}`} icon={<IndianRupee color="#DCA82D" size={24} />} delay="0.1s" />
-                    <MetricCard title="Estimated Profit (15%)" value={`₹${(stats.dailyTotal * 0.15).toFixed(0)}`} icon={<TrendingUp color="#4CAF50" size={24} />} delay="0.15s" />
+                    <MetricCard title="Gross Revenue" value={`${RUPEE}${stats.dailyTotal}`} icon={<IndianRupee color="#DCA82D" size={24} />} delay="0.1s" />
+                    <MetricCard title="Estimated Profit (15%)" value={`${RUPEE}${(stats.dailyTotal * 0.15).toFixed(0)}`} icon={<TrendingUp color="#4CAF50" size={24} />} delay="0.15s" />
                     <MetricCard title="Orders Logged" value={stats.orderCount} icon={<ShoppingCart color="#163321" size={24} />} delay="0.2s" />
-                    <MetricCard title="Avg. Order Value" value={`₹${aov}`} icon={<PieChart color="#2196F3" size={24} />} delay="0.3s" />
+                    <MetricCard title="Avg. Order Value" value={`${RUPEE}${aov}`} icon={<PieChart color="#2196F3" size={24} />} delay="0.3s" />
                 </div>
 
                 {/* Detailed Analytics */}
@@ -326,7 +371,9 @@ export default function Dashboard() {
                                 </div>
                             ))
                         ) : (
-                            <div style={{ textAlign: "center", padding: "60px 0", color: "#6A7A6E", fontStyle: 'italic' }}>Waiting for sales data...</div>
+                            <div style={{ textAlign: "center", padding: "60px 0", color: "#6A7A6E", fontStyle: 'italic' }}>
+                                {dataSource === 'local' ? 'No local sales captured today yet.' : 'Waiting for sales data...'}
+                            </div>
                         )}
                     </div>
 
@@ -346,19 +393,26 @@ export default function Dashboard() {
                                 <tbody>
                                     {stats.recentOrders.length > 0 ? (
                                         stats.recentOrders.map((order, i) => (
-                                            <tr key={i} style={{ background: "#FDFDFD", borderRadius: '12px' }}>
+                                            <tr key={order.id || i} style={{ background: "#FDFDFD", borderRadius: '12px' }}>
                                                 <td style={{ padding: "20px 16px", fontSize: "14px", color: "#6A7A6E", borderTopLeftRadius: '12px', borderBottomLeftRadius: '12px' }}>{order.time}</td>
                                                 <td style={{ padding: "20px 16px", fontSize: "15px", fontWeight: "800", color: "#163321" }}>{order.customer}</td>
                                                 <td style={{ padding: "20px 16px", fontSize: "13px", color: "#6A7A6E" }}>
-                                                    {Array.isArray(order.items) 
-                                                        ? order.items.map(it => `${it.count}x ${it.name}`).join(", ").substring(0, 40)
-                                                        : order.items}...
+                                                    {(() => {
+                                                        const manifest = Array.isArray(order.items)
+                                                            ? order.items.map(it => `${it.count}x ${it.name}`).join(", ")
+                                                            : order.items;
+                                                        return manifest.length > 40 ? `${manifest.substring(0, 40)}${ELLIPSIS}` : manifest;
+                                                    })()}
                                                 </td>
-                                                <td style={{ padding: "20px 16px", textAlign: "right", fontSize: "16px", fontWeight: "900", color: "#163321", borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>₹{order.total}</td>
+                                                <td style={{ padding: "20px 16px", textAlign: "right", fontSize: "16px", fontWeight: "900", color: "#163321", borderTopRightRadius: '12px', borderBottomRightRadius: '12px' }}>{RUPEE}{order.total}</td>
                                             </tr>
                                         ))
                                     ) : (
-                                        <tr><td colSpan="4" style={{ textAlign: "center", padding: "80px 0", color: "#6A7A6E", fontStyle: 'italic' }}>Establish connection to view feed</td></tr>
+                                        <tr>
+                                            <td colSpan="4" style={{ textAlign: "center", padding: "80px 0", color: "#6A7A6E", fontStyle: 'italic' }}>
+                                                {dataSource === 'local' ? 'No local kitchen activity captured today.' : 'Establish connection to view feed'}
+                                            </td>
+                                        </tr>
                                     )}
                                 </tbody>
                             </table>

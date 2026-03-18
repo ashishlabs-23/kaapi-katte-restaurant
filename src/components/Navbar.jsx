@@ -1,291 +1,197 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ShoppingBag, Menu, X } from 'lucide-react';
+import { Menu, ShoppingBag, X } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import './Navbar.css';
+
+const leftLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'Menu', path: '/menu' }
+];
+
+const baseRightLinks = [
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' }
+];
+
+const drawerCopy = '\u00A9 2026 Kaapi Katte \u00B7 Pure Veg \u00B7 Bengaluru';
 
 export default function Navbar() {
     const [scrollY, setScrollY] = useState(0);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const location = useLocation();
     const { cart, isChef } = useCart();
+
     const itemsInCart = cart.reduce((sum, item) => sum + item.count, 0);
+    const isScrolled = scrollY > 20;
+    const rightLinks = isChef
+        ? [
+            { name: 'Dashboard', path: '/admin-lounge' },
+            { name: 'Kitchen', path: '/kitchen' },
+            ...baseRightLinks
+        ]
+        : baseRightLinks;
 
     useEffect(() => {
         const handleScroll = () => setScrollY(window.scrollY);
-        window.addEventListener('scroll', handleScroll);
+
+        handleScroll();
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    const isScrolled = scrollY > 20;
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [location.pathname]);
 
-    /**
-     * DESIGN ANALYSIS: The Centered Navigation Stack
-     * To maintain the "Temple" aesthetic, symmetry is key. 
-     * We distribute primary navigation on the left and utility/story on the right.
-     * The logo acts as the "Sanctum" - the focal point of the brand.
-     */
-    const leftLinks = [
-        { name: 'Home', path: '/' },
-        { name: 'Menu', path: '/menu' }
-    ];
+    useEffect(() => {
+        document.body.classList.toggle('nav-open', mobileMenuOpen);
 
-    const rightLinks = [
-        { name: 'About', path: '/about' },
-        { name: 'Contact', path: '/contact' }
-    ];
+        return () => document.body.classList.remove('nav-open');
+    }, [mobileMenuOpen]);
 
-    if (isChef) {
-        // Staff links are tucked into the utility side to preserve the sacred symmetry for customers
-        rightLinks.unshift({ name: 'Kitchen', path: '/kitchen' });
-        rightLinks.unshift({ name: 'Dashboard', path: '/admin-lounge' });
-    }
+    useEffect(() => {
+        if (!mobileMenuOpen) {
+            return undefined;
+        }
+
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                setMobileMenuOpen(false);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [mobileMenuOpen]);
+
+    const allLinks = [...leftLinks, ...rightLinks];
+    const cartAriaLabel = itemsInCart > 0 ? `Open cart with ${itemsInCart} item${itemsInCart === 1 ? '' : 's'}` : 'Open cart';
+
+    const getLinkClassName = (path, isDrawerLink = false) => {
+        const baseClass = isDrawerLink ? 'site-navbar__drawer-link' : 'site-navbar__link';
+        return location.pathname === path ? `${baseClass} is-active` : baseClass;
+    };
 
     return (
-        <nav style={{
-            position: 'fixed',
-            top: 0, left: 0, right: 0,
-            zIndex: 1000,
-            /* Glassmorphism: Making the header feel like a floating piece of polished ivory */
-            background: isScrolled ? 'rgba(250, 249, 246, 0.85)' : 'transparent',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
-            borderBottom: isScrolled ? '1px solid rgba(10, 34, 22, 0.05)' : '1px solid transparent',
-            transition: 'all 0.8s var(--ease-heavy)',
-            height: isScrolled ? '80px' : '110px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0 60px'
-        }}>
-            <div className="navbar-grid" style={{
-                maxWidth: '1400px',
-                width: '100%',
-                display: 'grid',
-                gridTemplateColumns: '1fr auto 1fr',
-                alignItems: 'center'
-            }}>
-                {/* Left Side: Discovery */}
-                <div className="left-links-desktop" style={{ display: 'flex', gap: '48px', justifyContent: 'flex-start' }}>
-                    {leftLinks.map(link => (
-                        <Link 
-                            key={link.name} 
-                            to={link.path} 
-                            style={{
-                                textDecoration: 'none',
-                                color: location.pathname === link.path ? 'var(--saffron)' : 'var(--emerald)',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                letterSpacing: '0.2em',
-                                textTransform: 'uppercase',
-                                transition: 'all 0.4s var(--ease-heavy)',
-                                position: 'relative'
-                            }}
-                            className="nav-link-elite"
-                        >
+        <header className={`site-navbar${isScrolled ? ' site-navbar--scrolled' : ''}`}>
+            <nav className="site-navbar__inner" aria-label="Primary">
+                <div className="site-navbar__desktop site-navbar__desktop--left">
+                    {leftLinks.map((link) => (
+                        <Link key={link.name} to={link.path} className={getLinkClassName(link.path)}>
                             {link.name}
-                            <span className="nav-line-reveal" />
                         </Link>
                     ))}
                 </div>
 
-                {/* The Sanctum: Centered Logo */}
-                <Link to="/" style={{ display: 'flex', justifyContent: 'center', textDecoration: 'none' }}>
-                    <div style={{ 
-                        width: isScrolled ? '64px' : '96px', 
-                        height: isScrolled ? '64px' : '96px',
-                        transition: 'all 1s var(--ease-heavy)',
-                        background: '#FFF',
-                        borderRadius: '50%',
-                        padding: '12px',
-                        boxShadow: isScrolled ? '0 12px 30px rgba(0,0,0,0.08)' : '0 25px 60px rgba(0,0,0,0.04)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: isScrolled ? '1px solid rgba(226, 167, 63, 0.2)' : '1px solid rgba(0,0,0,0.02)'
-                    }} className="logo-sanctum">
-                        <img src="/logo.png" alt="Kaapi Katte Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
+                <button
+                    type="button"
+                    className="site-navbar__icon-button site-navbar__menu-toggle"
+                    onClick={() => setMobileMenuOpen((open) => !open)}
+                    aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                    aria-expanded={mobileMenuOpen}
+                    aria-controls="site-navbar-drawer"
+                >
+                    {mobileMenuOpen ? <X size={20} strokeWidth={2.2} /> : <Menu size={20} strokeWidth={2.2} />}
+                </button>
+
+                <Link to="/" className="site-navbar__logo-link" aria-label="Kaapi Katte home">
+                    <span className="site-navbar__logo-shell">
+                        <img src="/logo.png" alt="Kaapi Katte logo" className="site-navbar__logo" />
+                    </span>
                 </Link>
 
-                {/* Right Side: Utility & Cart */}
-                <div style={{ display: 'flex', gap: '40px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <div className="desktop-links" style={{ display: 'flex', gap: '40px', alignItems: 'center' }}>
-                        {rightLinks.map(link => (
-                            <Link 
-                                key={link.name} 
-                                to={link.path} 
-                                style={{
-                                    textDecoration: 'none',
-                                    color: location.pathname === link.path ? 'var(--saffron)' : 'var(--emerald)',
-                                    fontSize: '11px',
-                                    fontWeight: '700',
-                                    letterSpacing: '0.15em',
-                                    textTransform: 'uppercase',
-                                    transition: 'all 0.4s var(--ease-heavy)',
-                                    position: 'relative'
-                                }}
-                                className="nav-link-elite"
-                            >
+                <div className="site-navbar__desktop site-navbar__desktop--right">
+                    <div className="site-navbar__desktop-links">
+                        {rightLinks.map((link) => (
+                            <Link key={link.name} to={link.path} className={getLinkClassName(link.path)}>
                                 {link.name}
-                                <span className="nav-line-reveal" />
                             </Link>
                         ))}
                     </div>
 
-                    <Link to="/checkout" style={{
-                        textDecoration: 'none',
-                        background: 'var(--emerald)',
-                        color: 'var(--ivory)',
-                        padding: '12px 28px',
-                        borderRadius: '1px',
-                        fontSize: '11px',
-                        fontWeight: '800',
-                        letterSpacing: '2px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        transition: 'all 0.6s var(--ease-heavy)',
-                        boxShadow: '0 10px 30px rgba(10, 34, 22, 0.15)'
-                    }} className="cart-trigger-elite">
-                        <ShoppingBag size={14} strokeWidth={2.5} />
-                        <span style={{ transform: 'translateY(1px)' }}>
-                            {itemsInCart > 0 ? `${itemsInCart} ITEMS` : 'CART'}
-                        </span>
+                    <Link to="/checkout" className="site-navbar__cart-link" aria-label={cartAriaLabel}>
+                        <ShoppingBag size={16} strokeWidth={2.2} />
+                        <span className="site-navbar__cart-text">Cart</span>
+                        {itemsInCart > 0 && <span className="site-navbar__cart-count">{itemsInCart}</span>}
                     </Link>
+                </div>
 
-                    {/* Mobile Menu Trigger */}
-                    <button 
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                        style={{
-                            display: 'none',
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--emerald)',
-                            cursor: 'pointer',
-                            padding: '12px'
-                        }}
-                        className="mobile-trigger"
+                <Link
+                    to="/checkout"
+                    className="site-navbar__cart-link site-navbar__cart-link--mobile"
+                    aria-label={cartAriaLabel}
+                >
+                    <ShoppingBag size={18} strokeWidth={2.2} />
+                    <span className="site-navbar__cart-text">Cart</span>
+                    {itemsInCart > 0 && <span className="site-navbar__cart-count">{itemsInCart}</span>}
+                </Link>
+            </nav>
+
+            <aside
+                id="site-navbar-drawer"
+                className={`site-navbar__drawer${mobileMenuOpen ? ' is-open' : ''}`}
+                aria-hidden={!mobileMenuOpen}
+            >
+                <div className="site-navbar__drawer-header">
+                    <div className="site-navbar__drawer-brand">
+                        <span className="site-navbar__drawer-logo-shell">
+                            <img src="/logo.png" alt="" className="site-navbar__logo" />
+                        </span>
+
+                        <div>
+                            <p className="site-navbar__drawer-title">Kaapi Katte</p>
+                            <p className="site-navbar__drawer-subtitle">Pure vegetarian South Indian dining</p>
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        className="site-navbar__icon-button site-navbar__drawer-close"
+                        onClick={() => setMobileMenuOpen(false)}
+                        aria-label="Close navigation menu"
                     >
-                        {mobileMenuOpen ? <X size={32} /> : <Menu size={32} />}
+                        <X size={20} strokeWidth={2.2} />
                     </button>
                 </div>
-            </div>
 
-            {/* Mobile Drawer */}
-            <div style={{
-                position: 'fixed',
-                top: 0, right: 0, bottom: 0,
-                width: '100%',
-                maxWidth: '400px', /* Slightly wider for better text flow */
-                background: 'var(--ivory)',
-                zIndex: 2000,
-                transform: mobileMenuOpen ? 'translateX(0)' : 'translateX(100%)',
-                transition: 'transform 0.6s var(--ease-heavy)',
-                boxShadow: '-30px 0 80px rgba(10, 34, 22, 0.15)',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '0',
-                overflow: 'hidden'
-            }}>
-                {/* Drawer Decoration */}
-                <div style={{ padding: '60px 48px 40px', borderBottom: '1px solid rgba(10, 34, 22, 0.05)' }}>
-                    <div style={{ 
-                        width: '64px', height: '64px', background: '#FFF', 
-                        borderRadius: '50%', padding: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)',
-                        marginBottom: '24px'
-                    }}>
-                        <img src="/logo.png" alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
-                    <h2 style={{ fontSize: '24px', color: 'var(--emerald)', margin: 0, fontStyle: 'italic' }}>Kaapi Katte</h2>
-                    <p style={{ fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: 'var(--saffron)', fontWeight: '800', marginTop: '8px' }}>
-                        The Modern Temple
-                    </p>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', padding: '48px', gap: '32px' }}>
-                    {[...leftLinks, ...rightLinks].map(link => (
-                        <Link 
-                            key={link.name} 
-                            to={link.path} 
+                <div className="site-navbar__drawer-links">
+                    {allLinks.map((link) => (
+                        <Link
+                            key={link.name}
+                            to={link.path}
+                            className={getLinkClassName(link.path, true)}
                             onClick={() => setMobileMenuOpen(false)}
-                            style={{
-                                textDecoration: 'none',
-                                color: location.pathname === link.path ? 'var(--saffron)' : 'var(--emerald)',
-                                fontSize: '28px',
-                                fontWeight: '900',
-                                letterSpacing: '2px',
-                                textTransform: 'uppercase',
-                                fontStyle: 'italic',
-                                transition: 'all 0.3s ease'
-                            }}
-                            className="mobile-nav-link"
                         >
                             {link.name}
                         </Link>
                     ))}
                 </div>
 
-                <div style={{ marginTop: 'auto', padding: '48px', background: 'rgba(10, 34, 22, 0.02)' }}>
-                    <p style={{ fontSize: '11px', color: 'rgba(10, 34, 22, 0.4)', fontWeight: '700', letterSpacing: '1px' }}>
-                        © 2026 KAAPI KATTE RESTAURANT
-                    </p>
-                </div>
-            </div>
+                <div className="site-navbar__drawer-footer">
+                    <Link
+                        to="/checkout"
+                        className="site-navbar__cart-link site-navbar__drawer-cart"
+                        onClick={() => setMobileMenuOpen(false)}
+                        aria-label={cartAriaLabel}
+                    >
+                        <ShoppingBag size={16} strokeWidth={2.2} />
+                        <span className="site-navbar__cart-text">View cart</span>
+                        {itemsInCart > 0 && <span className="site-navbar__cart-count">{itemsInCart}</span>}
+                    </Link>
 
-            {/* Backdrop */}
-            {mobileMenuOpen && (
-                <div 
-                    onClick={() => setMobileMenuOpen(false)}
-                    style={{
-                        position: 'fixed',
-                        inset: 0,
-                        background: 'rgba(10, 34, 22, 0.6)',
-                        backdropFilter: 'blur(8px)',
-                        zIndex: 1999
-                    }} 
-                />
-            )}
-            
-            <style>{`
-                .nav-link-elite:hover {
-                    color: var(--saffron) !important;
-                    opacity: 0.8;
-                }
-                .nav-line-reveal {
-                    position: absolute;
-                    bottom: -8px;
-                    left: 0;
-                    width: 0;
-                    height: 1px;
-                    background: var(--saffron);
-                    transition: width 0.6s var(--ease-heavy);
-                }
-                .nav-link-elite:hover .nav-line-reveal {
-                    width: 100%;
-                }
-                .logo-sanctum:hover {
-                    transform: scale(1.05) rotate(5deg);
-                }
-                .cart-trigger-elite:hover {
-                    background: var(--saffron);
-                    color: var(--emerald);
-                    transform: translateY(-4px);
-                    box-shadow: 0 20px 40px rgba(226, 167, 63, 0.25);
-                }
-                @media (max-width: 1024px) {
-                    .nav-link-elite, .left-links-desktop, .desktop-links { display: none !important; }
-                    .mobile-trigger { display: block !important; }
-                    nav { padding: 0 20px !important; height: 88px !important; background: rgba(250, 249, 246, 0.95) !important; }
-                    .logo-sanctum { width: 64px !important; height: 64px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
-                    .navbar-grid { grid-template-columns: auto 1fr auto !important; gap: 12px; }
-                    .cart-trigger-elite { padding: 10px 16px !important; gap: 8px !important; }
-                    .cart-trigger-elite span { display: none; }
-                    .cart-trigger-elite::after { content: 'ITEMS'; font-size: 9px; display: none; }
-                    /* Make cart count always visible but compact */
-                    .cart-trigger-elite span { display: block !important; font-size: 10px !important; }
-                }
-            `}</style>
-        </nav>
+                    <p className="site-navbar__drawer-copy">{drawerCopy}</p>
+                </div>
+            </aside>
+
+            <button
+                type="button"
+                className={`site-navbar__backdrop${mobileMenuOpen ? ' is-open' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close navigation menu overlay"
+            />
+        </header>
     );
 }
-

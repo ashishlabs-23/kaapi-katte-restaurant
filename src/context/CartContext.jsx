@@ -1,107 +1,143 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { apiService } from '../services/api';
 
 const CartContext = createContext();
+const ORDERS_STORAGE_KEY = 'kaapi_katte_orders';
+
+function readStoredOrders() {
+    try {
+        const saved = localStorage.getItem(ORDERS_STORAGE_KEY);
+        return saved ? JSON.parse(saved) : [];
+    } catch {
+        return [];
+    }
+}
+
+function createOrderId() {
+    return `ORD-${Date.now().toString().slice(-8)}`;
+}
+
+function sanitizeCustomerDetails(customerDetails = {}) {
+    return {
+        name: `${customerDetails.name || ''}`.trim(),
+        phone: `${customerDetails.phone || ''}`.replace(/\D/g, '').slice(0, 10)
+    };
+}
 
 export function CartProvider({ children }) {
     const [cart, setCart] = useState([]);
-    const [isChef, setIsChef] = useState(false); // Simple mock auth
+    const [isChef, setIsChef] = useState(false);
+    const [orders, setOrders] = useState(readStoredOrders);
 
     const toggleChefMode = () => setIsChef(!isChef);
 
-    // Try to load any existing orders from LocalStorage when the app starts
-    const [orders, setOrders] = useState(() => {
-        const saved = localStorage.getItem('kaapi_katte_orders');
-        return saved ? JSON.parse(saved) : [];
-    });
-
-    // Whenever orders change, save them back to LocalStorage
     useEffect(() => {
-        localStorage.setItem('kaapi_katte_orders', JSON.stringify(orders));
+        localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
     }, [orders]);
 
     const addToCart = (item) => {
         setCart((prev) => {
-            const existing = prev.find((i) => i.name === item.name);
+            const existing = prev.find((entry) => entry.name === item.name);
             if (existing) {
-                return prev.map((i) =>
-                    i.name === item.name ? { ...i, count: i.count + 1 } : i
+                return prev.map((entry) =>
+                    entry.name === item.name ? { ...entry, count: entry.count + 1 } : entry
                 );
             }
+
             return [...prev, { ...item, count: 1 }];
         });
     };
 
     const removeFromCart = (itemName) => {
-        setCart((prev) => prev.filter((i) => i.name !== itemName));
+        setCart((prev) => prev.filter((item) => item.name !== itemName));
     };
 
     const updateQuantity = (itemName, amount) => {
         setCart((prev) =>
-            prev.map((i) => {
-                if (i.name === itemName) {
-                    const newCount = i.count + amount;
-                    return newCount > 0 ? { ...i, count: newCount } : i;
-                }
-                return i;
-            })
+            prev
+                .map((item) => {
+                    if (item.name !== itemName) {
+                        return item;
+                    }
+
+                    const nextCount = item.count + amount;
+                    return nextCount > 0 ? { ...item, count: nextCount } : null;
+                })
+                .filter(Boolean)
         );
     };
 
     const cartTotal = cart.reduce((sum, item) => sum + item.price * item.count, 0);
 
     const placeOrder = async (customerDetails) => {
-        const orderId = "ORD-" + Math.floor(1000 + Math.random() * 9000);
+        const sanitizedCustomer = sanitizeCustomerDetails(customerDetails);
+        const timestamp = new Date().toISOString();
+        const orderId = createOrderId();
+
         const newOrder = {
             id: orderId,
-            timestamp: new Date().toISOString(),
-            items: [...cart],
+            timestamp,
+            items: cart.map((item) => ({ ...item })),
             total: cartTotal,
-            customer: customerDetails,
-            status: "Preparing"
+            customer: sanitizedCustomer,
+            customerName: sanitizedCustomer.name,
+            customerPhone: sanitizedCustomer.phone,
+            status: 'Preparing',
+            syncStatus: 'pending'
         };
 
-        // UI-First update for perceived speed
-        setOrders(prev => [newOrder, ...prev]);
+        setOrders((prev) => [newOrder, ...prev]);
         setCart([]);
 
-        // Background sync to Google Sheets (The "Senior" approach)
         try {
-            await apiService.recordPayment({
-                orderId: orderId,
-                total: cartTotal,
-                customer: customerDetails,
-                items: cart.map(item => `${item.name} (${item.count})`).join(', '),
-                time: new Date().toLocaleTimeString()
-            });
-            console.log(`[Sync] Order ${orderId} synchronized with Google Sheets.`);
-        } catch (error) {
-            console.error(`[Sync Error] Failed to upload order ${orderId}:`, error);
-            // In a real app, we might add this to a retry queue
-        }
+            const syncResult = await apiService.recordPayment(newOrder);
+            const syncedOrder = {
+                ...newOrder,
+                syncStatus: syncResult.status,
+                syncedAt: syncResult.sentAt
+            };
 
-        return newOrder;
+            setOrders((prev) =>
+                prev.map((order) => (order.id === orderId ? syncedOrder : order))
+            );
+
+            return syncedOrder;
+        } catch (error) {
+            const failedOrder = {
+                ...newOrder,
+                syncStatus: 'failed',
+                syncError: error?.message || 'Unable to sync order to backend'
+            };
+
+            setOrders((prev) =>
+                prev.map((order) => (order.id === orderId ? failedOrder : order))
+            );
+
+            return failedOrder;
+        }
     };
 
     const updateOrderStatus = (orderId, newStatus) => {
-        setOrders(prev =>
-            prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o)
+        setOrders((prev) =>
+            prev.map((order) => (order.id === orderId ? { ...order, status: newStatus } : order))
         );
     };
 
     return (
-        <CartContext.Provider value={{
-            cart,
-            addToCart,
-            removeFromCart,
-            updateQuantity,
-            cartTotal,
-            orders,
-            placeOrder,
-            updateOrderStatus,
-            isChef,
-            toggleChefMode
-        }}>
+        <CartContext.Provider
+            value={{
+                cart,
+                addToCart,
+                removeFromCart,
+                updateQuantity,
+                cartTotal,
+                orders,
+                placeOrder,
+                updateOrderStatus,
+                isChef,
+                toggleChefMode
+            }}
+        >
             {children}
         </CartContext.Provider>
     );
