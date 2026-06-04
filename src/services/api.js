@@ -346,7 +346,11 @@ export const apiService = {
                 body: JSON.stringify({
                     action: 'deleteOrder',
                     orderId: orderId,
-                    status: 'order cancelled',
+                    status: 'ORDER CANCELLED',
+                    orderStatus: 'ORDER CANCELLED',
+                    paymentStatus: 'ORDER CANCELLED',
+                    statusMsg: 'ORDER CANCELLED',
+                    message: 'ORDER CANCELLED',
                     customerName: customerName,
                     customerPhone: customerPhone,
                     customer: customerName,
