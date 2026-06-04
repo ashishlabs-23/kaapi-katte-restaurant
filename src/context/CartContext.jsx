@@ -123,11 +123,15 @@ export function CartProvider({ children }) {
         );
     };
 
-    const deleteOrder = async (orderId) => {
+    const deleteOrder = async (orderId, customerName = '', customerPhone = '') => {
+        const order = orders.find(o => o.id === orderId);
+        const finalName = customerName || order?.customerName || '';
+        const finalPhone = customerPhone || order?.customerPhone || '';
+
         setOrders((prev) => prev.filter((order) => order.id !== orderId));
         
         try {
-            await apiService.deleteOrder(orderId);
+            await apiService.deleteOrder(orderId, finalName, finalPhone);
             return { status: 'success' };
         } catch (error) {
             console.error("Failed to sync order deletion:", error);

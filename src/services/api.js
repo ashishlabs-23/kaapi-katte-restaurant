@@ -335,7 +335,7 @@ export const apiService = {
         }
     },
 
-    async deleteOrder(orderId) {
+    async deleteOrder(orderId, customerName = '', customerPhone = '') {
         try {
             await fetchWithTimeout(BACKEND_URL, {
                 method: 'POST',
@@ -345,7 +345,11 @@ export const apiService = {
                 },
                 body: JSON.stringify({
                     action: 'deleteOrder',
-                    orderId: orderId
+                    orderId: orderId,
+                    status: 'order cancelled',
+                    customerName: customerName,
+                    customerPhone: customerPhone,
+                    customer: customerName
                 })
             });
             return {

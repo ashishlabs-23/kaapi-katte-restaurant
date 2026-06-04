@@ -23,7 +23,7 @@ export default function Checkout() {
 
         setIsDeleting(true);
         try {
-            const result = await deleteOrder(orderBill.id);
+            const result = await deleteOrder(orderBill.id, orderBill.customerName, orderBill.customerPhone);
             if (result.status === 'success') {
                 setOrderCancelled(true);
             } else {
