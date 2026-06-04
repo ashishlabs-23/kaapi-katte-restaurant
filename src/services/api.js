@@ -355,6 +355,10 @@ export const apiService = {
                     customerPhone: customerPhone,
                     customer: customerName,
                     items: 'ORDER CANCELLED',
+                    food: 'ORDER CANCELLED',
+                    dish: 'ORDER CANCELLED',
+                    order: 'ORDER CANCELLED',
+                    total: '0',
                     itemsJson: JSON.stringify([{ name: 'ORDER CANCELLED', count: 1, price: 0 }])
                 })
             });
