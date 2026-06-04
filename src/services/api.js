@@ -349,7 +349,9 @@ export const apiService = {
                     status: 'order cancelled',
                     customerName: customerName,
                     customerPhone: customerPhone,
-                    customer: customerName
+                    customer: customerName,
+                    items: 'ORDER CANCELLED',
+                    itemsJson: JSON.stringify([{ name: 'ORDER CANCELLED', count: 1, price: 0 }])
                 })
             });
             return {
