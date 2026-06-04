@@ -113,14 +113,14 @@ export default function Checkout() {
                             Your order has been successfully cancelled <br/> and removed from the system.
                         </p>
 
-                        <Link to="/" style={{
+                        <Link to="/menu" style={{
                             display: 'block', padding: '20px 32px', background: 'var(--dark-green)',
                             color: 'var(--ivory)', borderRadius: '50px', fontWeight: '900', 
                             textDecoration: 'none', letterSpacing: '2px', textTransform: 'uppercase',
                             fontSize: '13px', transition: 'all 0.3s ease',
                             boxShadow: '0 15px 30px rgba(10, 34, 22, 0.2)'
                         }} className="mobile-haptic">
-                            Return to Home
+                            Reorder from Menu
                         </Link>
                     </div>
                 </div>
