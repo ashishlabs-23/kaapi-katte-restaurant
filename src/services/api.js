@@ -335,6 +335,28 @@ export const apiService = {
         }
     },
 
+    async deleteOrder(orderId) {
+        try {
+            await fetchWithTimeout(BACKEND_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8'
+                },
+                body: JSON.stringify({
+                    action: 'deleteOrder',
+                    orderId: orderId
+                })
+            });
+            return {
+                status: 'deleted',
+                sentAt: new Date().toISOString()
+            };
+        } catch (error) {
+            throw new Error(error?.message || 'Unable to sync order deletion to backend');
+        }
+    },
+
     async getDailyStats() {
         const response = await fetchWithTimeout(buildStatsUrl(), {
             method: 'GET'

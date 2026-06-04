@@ -4,14 +4,39 @@ import { ShoppingBag, ChevronLeft, Minus, Plus, Trash2, Check } from 'lucide-rea
 import { Link } from 'react-router-dom';
 
 export default function Checkout() {
-    const { cart, removeFromCart, updateQuantity, cartTotal, placeOrder } = useCart();
+    const { cart, removeFromCart, updateQuantity, cartTotal, placeOrder, deleteOrder } = useCart();
     const [orderCompleted, setOrderCompleted] = useState(false);
     const [orderBill, setOrderBill] = useState(null);
     const [customerInfo, setCustomerInfo] = useState({ name: '', phone: '' });
     const [isProcessing, setIsProcessing] = useState(false);
     const [syncNotice, setSyncNotice] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [orderCancelled, setOrderCancelled] = useState(false);
 
     const total = cartTotal;
+
+    const handleDeleteOrder = async () => {
+        if (!orderBill) return;
+
+        const confirmCancel = window.confirm("Are you sure you want to cancel and delete this order?");
+        if (!confirmCancel) return;
+
+        setIsDeleting(true);
+        try {
+            const result = await deleteOrder(orderBill.id);
+            if (result.status === 'success') {
+                setOrderCancelled(true);
+            } else {
+                alert("Failed to delete order from backend. It was removed locally.");
+                setOrderCancelled(true);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error occurred while deleting order.");
+        } finally {
+            setIsDeleting(false);
+        }
+    };
 
     const handlePlaceOrder = async () => {
         const trimmedName = customerInfo.name.trim();
@@ -55,6 +80,53 @@ export default function Checkout() {
             setIsProcessing(false);
         }
     };
+
+    if (orderCancelled) {
+        return (
+            <div style={{ padding: '120px 20px', minHeight: '90vh', background: 'var(--ivory)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{
+                    padding: '60px 40px', background: '#FFF', borderRadius: '40px',
+                    boxShadow: '0 40px 80px rgba(10, 34, 22, 0.08)', 
+                    border: '1px solid rgba(10, 34, 22, 0.05)',
+                    maxWidth: '540px', width: '100%', textAlign: 'center',
+                    position: 'relative', overflow: 'hidden'
+                }} className="mobile-haptic">
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{
+                            width: '100px', height: '100px', background: 'rgba(209, 65, 36, 0.1)', color: '#D14124',
+                            borderRadius: '35%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            margin: '0 auto 32px', transform: 'rotate(10deg)',
+                            boxShadow: '0 20px 40px rgba(209, 65, 36, 0.15)',
+                            border: '1px solid rgba(209, 65, 36, 0.2)'
+                        }}>
+                            <Trash2 size={48} style={{ transform: 'rotate(-10deg)' }} />
+                        </div>
+                        
+                        <h2 style={{ 
+                            fontSize: '42px', color: 'var(--dark-green)', 
+                            fontFamily: "'Playfair Display', serif", 
+                            fontStyle: 'italic', marginBottom: '12px', fontWeight: '900',
+                            letterSpacing: '-1px'
+                        }}>Order Cancelled</h2>
+                        
+                        <p style={{ color: '#6A7A6E', marginBottom: '40px', fontSize: '16px', lineHeight: '1.6' }}>
+                            Your order has been successfully cancelled <br/> and removed from the system.
+                        </p>
+
+                        <Link to="/" style={{
+                            display: 'block', padding: '20px 32px', background: 'var(--dark-green)',
+                            color: 'var(--ivory)', borderRadius: '50px', fontWeight: '900', 
+                            textDecoration: 'none', letterSpacing: '2px', textTransform: 'uppercase',
+                            fontSize: '13px', transition: 'all 0.3s ease',
+                            boxShadow: '0 15px 30px rgba(10, 34, 22, 0.2)'
+                        }} className="mobile-haptic">
+                            Return to Home
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (orderCompleted) {
         return (
@@ -143,6 +215,21 @@ export default function Checkout() {
                         }} className="mobile-haptic">
                             Continue Your Journey
                         </Link>
+
+                        <button
+                            onClick={handleDeleteOrder}
+                            disabled={isDeleting}
+                            style={{
+                                display: 'block', width: '100%', padding: '20px 32px', background: 'transparent',
+                                color: '#D14124', border: '1px solid rgba(209, 65, 36, 0.3)', borderRadius: '50px', fontWeight: '900', 
+                                letterSpacing: '2px', textTransform: 'uppercase',
+                                fontSize: '13px', transition: 'all 0.3s ease',
+                                cursor: 'pointer', marginTop: '16px'
+                            }}
+                            className="mobile-haptic"
+                        >
+                            {isDeleting ? 'Cancelling...' : 'Cancel Order'}
+                        </button>
                     </div>
                 </div>
             </div>

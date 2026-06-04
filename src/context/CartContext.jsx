@@ -123,6 +123,18 @@ export function CartProvider({ children }) {
         );
     };
 
+    const deleteOrder = async (orderId) => {
+        setOrders((prev) => prev.filter((order) => order.id !== orderId));
+        
+        try {
+            await apiService.deleteOrder(orderId);
+            return { status: 'success' };
+        } catch (error) {
+            console.error("Failed to sync order deletion:", error);
+            return { status: 'failed', error: error.message };
+        }
+    };
+
     return (
         <CartContext.Provider
             value={{
@@ -134,6 +146,7 @@ export function CartProvider({ children }) {
                 orders,
                 placeOrder,
                 updateOrderStatus,
+                deleteOrder,
                 isChef,
                 toggleChefMode
             }}
